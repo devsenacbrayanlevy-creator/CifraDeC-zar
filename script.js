@@ -1,28 +1,28 @@
-// Referências aos elementos HTML
+// Referências aos elementos HTML usados no script
 const inputText = document.getElementById("inputText");
-const ooutputText = document.getElementById("outputText");
+const outputText = document.getElementById("outputText");
 const shiftValue = document.getElementById("shiftValue");
 const copyButton = document.getElementById("copyButton");
 const resetButton = document.getElementById("resetButton");
 const modeRadios = document.querySelectorAll('input[name="mode"]');
 
-// Conjuto de alfabetos suportados pela aplicação
+// Conjunto de alfabetos suportados pela aplicação
 const alphabets = {
   latin: "abcdefghijklmnopqrstuvwxyz",
 };
 
-//Obtém o módulo selecionado
-function getSelectMode() {
-  return document.querySelector('input[name="mode:checked').value;
+// Obtém o modo selecionado: "encode" ou "decode"
+function getSelectedMode() {
+  return document.querySelector('input[name="mode"]:checked').value;
 }
 
-// Normalizar o valor do deslocamento para um número válido
+// Normaliza o valor do deslocamento para um número válido
 function normalizeValue(value) {
   const number = Number(value);
   return Number.isNaN(number) ? 0 : number;
 }
 
-// Aplicar a cifra de Cezar no texto informado
+// Aplica a Cifra de César no texto informado
 function transformText(text, shift, mode) {
   const alphabet = alphabets.latin;
   const maxIndex = alphabet.length;
@@ -35,37 +35,38 @@ function transformText(text, shift, mode) {
       const lower = char.toLowerCase();
       const idx = alphabet.indexOf(lower);
 
-      //Retorna o próprio carctere se não fizer parte do alfabeto
+      // Retorna o próprio caractere se não fizer parte do alfabeto
       if (idx === -1) {
         return char;
       }
 
-      // Calcular a nova posição dentro do alfabeto
+      // Calcula a nova posição dentro do alfabeto
       const newIndex = (idx + direction * offset + maxIndex) % maxIndex;
       const transformed = alphabet[newIndex];
 
-      //Preserva maiuscula e minuscula
-      return char === lower ? transformed : transformed.toLocaleUpperCase();
+      // Preserva maiúsculas e minúsculas
+      return char === lower ? transformed : transformed.toUpperCase();
     })
     .join("");
 }
 
-//Atualiza  o texto de resultado com base na entrada atual
+// Atualiza o texto de resultado com base na entrada atual
 function updateResult() {
   const text = inputText.value;
   const shift = normalizeValue(shiftValue.value);
   const mode = getSelectedMode();
 
   outputText.textContent =
-    transformText(text, shift, mode) || "Digite um texto para ver o resultado";
+    transformText(text, shift, mode) ||
+    "Digite um texto para ver o resultado aqui.";
 }
 
-// Função para copiar o resultado para a área de trasnferencia
+// Copia o resultado para a área de transferência
 function copyResult() {
   const result = outputText.textContent;
   if (!result) return;
 
-  navigation.clipboard
+  navigator.clipboard
     .writeText(result)
     .then(() => {
       copyButton.textContent = "Copiado";
@@ -81,7 +82,7 @@ function copyResult() {
     });
 }
 
-//Redefinir o formulário para o estado inicial
+// Redefine o formulário para o estado inicial
 function resetForm() {
   inputText.value = "";
   shiftValue.value = "2";
@@ -95,3 +96,6 @@ shiftValue.addEventListener("input", updateResult);
 modeRadios.forEach((radio) => radio.addEventListener("change", updateResult));
 copyButton.addEventListener("click", copyResult);
 resetButton.addEventListener("click", resetForm);
+
+// Executa a primeira renderização do resultado
+updateResult();
